@@ -32,14 +32,10 @@ export default function AuthPage() {
 
   async function handleGoogle() {
     setError('');
-    setLoading(true);
     try {
       await googleSignIn();
-      navigate('/');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Google sign-in failed');
-    } finally {
-      setLoading(false);
     }
   }
 
