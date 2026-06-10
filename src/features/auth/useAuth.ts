@@ -16,9 +16,12 @@ const googleProvider = new GoogleAuthProvider();
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [redirectError, setRedirectError] = useState<string | null>(null);
 
   useEffect(() => {
-    getRedirectResult(auth).catch(() => {});
+    getRedirectResult(auth).catch((err) => {
+      setRedirectError(err?.message ?? 'Google sign-in failed');
+    });
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
@@ -36,5 +39,5 @@ export function useAuth() {
 
   const signOut = () => firebaseSignOut(auth);
 
-  return { user, loading, signIn, register, googleSignIn, signOut };
+  return { user, loading, redirectError, signIn, register, googleSignIn, signOut };
 }
