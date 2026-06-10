@@ -35,10 +35,9 @@ export default function AuthPage() {
     setLoading(true);
     try {
       await googleSignIn();
-      navigate('/');
+      // signInWithRedirect navigates away — execution won't reach here
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Google sign-in failed');
-    } finally {
       setLoading(false);
     }
   }
