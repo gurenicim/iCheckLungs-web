@@ -4,7 +4,8 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   signOut as firebaseSignOut,
 } from 'firebase/auth';
@@ -17,6 +18,7 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    getRedirectResult(auth).catch(() => {});
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
@@ -30,7 +32,7 @@ export function useAuth() {
   const register = (email: string, password: string) =>
     createUserWithEmailAndPassword(auth, email, password);
 
-  const googleSignIn = () => signInWithPopup(auth, googleProvider);
+  const googleSignIn = () => signInWithRedirect(auth, googleProvider);
 
   const signOut = () => firebaseSignOut(auth);
 
