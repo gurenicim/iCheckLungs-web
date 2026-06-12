@@ -4,8 +4,7 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
   GoogleAuthProvider,
   signOut as firebaseSignOut,
 } from 'firebase/auth';
@@ -32,12 +31,8 @@ async function ensureUserProfile(user: User) {
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [redirectError, setRedirectError] = useState<string | null>(null);
 
   useEffect(() => {
-    getRedirectResult(auth).catch((err) => {
-      setRedirectError(err?.message ?? 'Google sign-in failed');
-    });
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       if (u) await ensureUserProfile(u);
       setUser(u);
@@ -52,9 +47,9 @@ export function useAuth() {
   const register = (email: string, password: string) =>
     createUserWithEmailAndPassword(auth, email, password);
 
-  const googleSignIn = () => signInWithRedirect(auth, googleProvider);
+  const googleSignIn = () => signInWithPopup(auth, googleProvider);
 
   const signOut = () => firebaseSignOut(auth);
 
-  return { user, loading, redirectError, signIn, register, googleSignIn, signOut };
+  return { user, loading, signIn, register, googleSignIn, signOut };
 }

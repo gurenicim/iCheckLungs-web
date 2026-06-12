@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
 
 export default function AuthPage() {
-  const { signIn, register, googleSignIn, redirectError } = useAuth();
+  const { signIn, register, googleSignIn } = useAuth();
   const navigate = useNavigate();
 
   const [mode, setMode] = useState<'signin' | 'register'>('signin');
@@ -65,9 +65,7 @@ export default function AuthPage() {
             className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
-          {(error || redirectError) && (
-          <p className="text-sm text-red-500">{error || redirectError}</p>
-        )}
+          {error && <p className="text-sm text-red-500">{error}</p>}
 
           <button
             type="submit"
