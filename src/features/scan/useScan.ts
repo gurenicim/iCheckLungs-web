@@ -7,10 +7,10 @@ import { storage, db, appCheck } from '../../firebase/config';
 
 export type ScanPhase =
   | { type: 'idle' }
-  | { type: 'uploading' }
-  | { type: 'submitting' }
-  | { type: 'pending' }
-  | { type: 'done'; findings: string; confidence: string }
+  | { type: 'uploading'; previewUrl: string }
+  | { type: 'submitting'; previewUrl: string }
+  | { type: 'pending'; previewUrl: string }
+  | { type: 'done'; findings: string; confidence: string; previewUrl: string }
   | { type: 'failed'; message: string };
 
 export function useScan(user: User) {
@@ -29,10 +29,11 @@ export function useScan(user: User) {
 
     const scanId = crypto.randomUUID();
     const uid = user.uid;
+    const previewUrl = URL.createObjectURL(file);
 
     try {
       // Upload image
-      setPhase({ type: 'uploading' });
+      setPhase({ type: 'uploading', previewUrl });
       const storageRef = ref(storage, `users/${uid}/scans/${scanId}/image.jpg`);
       await uploadBytes(storageRef, file, { contentType: 'image/jpeg' });
       const downloadUrl = await getDownloadURL(storageRef);
@@ -49,7 +50,7 @@ export function useScan(user: User) {
       });
 
       // Submit to backend
-      setPhase({ type: 'submitting' });
+      setPhase({ type: 'submitting', previewUrl });
       const [idToken, appCheckToken] = await Promise.all([
         user.getIdToken(),
         getToken(appCheck).then((r) => r.token),
@@ -71,7 +72,7 @@ export function useScan(user: User) {
       }
 
       // Listen for result
-      setPhase({ type: 'pending' });
+      setPhase({ type: 'pending', previewUrl });
       unsubscribeRef.current = onSnapshot(
         doc(db, 'users', uid, 'scans', scanId),
         (snap) => {
@@ -80,7 +81,7 @@ export function useScan(user: User) {
           unsubscribeRef.current?.();
           unsubscribeRef.current = null;
           if (data.status === 'done') {
-            setPhase({ type: 'done', findings: data.findings ?? '', confidence: data.confidence ?? '' });
+            setPhase({ type: 'done', findings: data.findings ?? '', confidence: data.confidence ?? '', previewUrl });
           } else {
             setPhase({ type: 'failed', message: data.error ?? 'Analysis failed' });
           }

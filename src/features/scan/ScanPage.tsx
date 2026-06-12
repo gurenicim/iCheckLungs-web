@@ -69,20 +69,27 @@ export default function ScanPage({ user, onSignOut }: { user: User; onSignOut: (
 
           {/* Processing states */}
           {isProcessing && (
-            <div className="bg-white rounded-2xl border border-gray-200 p-8 flex flex-col items-center gap-4">
-              <Spinner />
-              <div className="text-center">
-                <p className="font-medium text-gray-900">{phaseLabel(phase.type)}</p>
-                <p className="text-sm text-gray-500 mt-1">
-                  {phase.type === 'pending' && 'This may take up to a minute…'}
-                </p>
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+              {'previewUrl' in phase && (
+                <img src={phase.previewUrl} alt="X-ray preview" className="w-full object-contain max-h-72 bg-black" />
+              )}
+              <div className="p-6 flex flex-col items-center gap-3">
+                <Spinner />
+                <div className="text-center">
+                  <p className="font-medium text-gray-900">{phaseLabel(phase.type)}</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {phase.type === 'pending' && 'This may take up to a minute…'}
+                  </p>
+                </div>
               </div>
             </div>
           )}
 
           {/* Result */}
           {phase.type === 'done' && (
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden space-y-0">
+              <img src={phase.previewUrl} alt="X-ray" className="w-full object-contain max-h-72 bg-black" />
+              <div className="p-6 space-y-4">
               <div className="flex items-center gap-2">
                 <CheckIcon />
                 <h3 className="font-semibold text-gray-900">Analysis complete</h3>
@@ -104,6 +111,7 @@ export default function ScanPage({ user, onSignOut }: { user: User; onSignOut: (
               >
                 Analyse another image
               </button>
+              </div>
             </div>
           )}
 
