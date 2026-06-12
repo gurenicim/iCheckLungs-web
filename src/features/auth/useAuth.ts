@@ -9,9 +9,25 @@ import {
   GoogleAuthProvider,
   signOut as firebaseSignOut,
 } from 'firebase/auth';
-import { auth } from '../../firebase/config';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '../../firebase/config';
 
 const googleProvider = new GoogleAuthProvider();
+
+async function ensureUserProfile(user: User) {
+  const ref = doc(db, 'users', user.uid);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) {
+    await setDoc(ref, {
+      email: user.email ?? '',
+      plan: 'trial',
+      scansLimit: 3,
+      scansRemaining: 3,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  }
+}
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -22,7 +38,8 @@ export function useAuth() {
     getRedirectResult(auth).catch((err) => {
       setRedirectError(err?.message ?? 'Google sign-in failed');
     });
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+      if (u) await ensureUserProfile(u);
       setUser(u);
       setLoading(false);
     });
