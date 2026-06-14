@@ -20,8 +20,8 @@ async function ensureUserProfile(user: User) {
     await setDoc(ref, {
       email: user.email ?? '',
       plan: 'trial',
-      scansLimit: 3,
-      scansRemaining: 3,
+      scansLimit: 5,
+      scansRemaining: 5,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
